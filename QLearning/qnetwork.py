@@ -1,84 +1,16 @@
+"""
+
+ 2020 (c) piteren
+
+"""
+
+from collections import deque
 import random
 import numpy as np
-import pandas as pd
+import os
 import tensorflow as tf
-import matplotlib.pyplot as plt
-from collections import deque
-from time import time
 
-
-def state_to_str(state):
-    return str(state.astype(np.int).tolist()).replace(' ','')
-
-
-class Game:
-
-    def __init__(self, bs=4):
-        self.bs = bs
-        self.board = np.zeros(bs)
-        self.all_states = [np.asarray(([0]*bs + [int(e) for e in list(str(bin(i))[2:])])[-bs:]) for i in range(2**bs)]
-        print(f'\nGame initialized for board {self.bs}, all possible states ({len(self.all_states)}):')
-        for s in self.all_states: print(state_to_str(s))
-
-    def reset(self):
-        self.board = np.zeros(self.bs)
-
-    # returns reward
-    def play(self, cell):
-        if self.board[cell] == 0:
-            self.board[cell] = 1
-            return 1
-        return -1
-
-    def is_over(self):
-        return np.average(self.board) == 1
-
-
-def build_QTable(game):
-
-    num_of_games = 2000
-    epsilon = 0.5
-    gamma = 0.9
-
-    q_table = pd.DataFrame(0, index=np.arange(len(game.board)), columns=[state_to_str(s) for s in game.all_states])
-    print(q_table)
-
-    r_list = []  # store the total reward of each game so we can plot it later
-    for g in range(num_of_games):
-        total_reward = 0
-        game.reset()
-        while not game.is_over():
-            state = np.copy(game.board) # save initial state copy
-            if random.random() < epsilon:   action = random.randrange(len(state))
-            else:                           action = q_table[state_to_str(state)].idxmax()
-            reward = game.play(action)
-            total_reward += reward
-
-            next_state = game.board.astype(np.int)
-            next_state_max_q_value = q_table[state_to_str(next_state)].max()
-            q_table.loc[action, state_to_str(state)] = reward + gamma * next_state_max_q_value
-
-        r_list.append(total_reward)
-
-    print(q_table)
-    return q_table, r_list
-
-
-def test_QTable(game, q_table):
-
-    for st in game.all_states:
-        sst = state_to_str(st)
-        action = q_table[sst].idxmax()
-        pred = str([round(v,3) for v in q_table[sst].tolist()])
-        print(f'board: {sst}  predicted Q values: {pred:30s}  best action: {action}  correct action? {st[action] == 0}')
-
-
-def plot_RList(r_list):
-    plt.figure(figsize=(14, 7))
-    plt.plot(range(len(r_list)), r_list)
-    plt.xlabel('Games played')
-    plt.ylabel('Reward')
-    plt.show()
+from QLearning.game_envy import Game
 
 
 class QNetwork:
@@ -88,6 +20,7 @@ class QNetwork:
             hidden_layers_size,
             gamma,
             learning_rate,
+            seed,
             input_size=     4,
             output_size=    4):
 
@@ -138,7 +71,7 @@ class ReplayMemory:
         return random.sample(self.memory, n)
 
 
-def train_QNetwork():
+def train_QNetwork(game, seed):
     num_of_games = 2000
     epsilon = 0.5
     gamma = 0.9
@@ -146,9 +79,12 @@ def train_QNetwork():
     batch_size = 10
     memory_size = 20
 
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
     tf.reset_default_graph()
     tf.set_random_seed(seed)
-    qnn = QNetwork(hidden_layers_size=[20], gamma=gamma, learning_rate=learning_rate)
+    qnn = QNetwork(hidden_layers_size=[20], gamma=gamma, learning_rate=learning_rate, seed=seed)
     memory = ReplayMemory(memory_size)
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
@@ -200,15 +136,15 @@ def train_QNetwork():
     print(f'Final cost (avg10): {sum(c_list[-10:])/10:.3f}')
     return sess, qnn
 
+
 def test_QNetwork(game, sess, qnn):
 
     for st in game.all_states:
-        sst = state_to_str(st)
+        sst = Game.state_to_str(st)
         pred = np.squeeze(sess.run(qnn.output, feed_dict={qnn.states: np.expand_dims(st, axis=0)}))
         action = np.argmax(pred)
         pred = str(list(map(lambda x: round(x, 3), pred)))
         print(f'board: {sst}  predicted Q values: {pred:30s}  best action: {action}  correct action? {st[action]==0}')
-
 
 
 if __name__ == "__main__":
@@ -219,9 +155,5 @@ if __name__ == "__main__":
 
     game = Game(bs=4)
 
-    #q_table, r_list = build_QTable(game)
-    #test_QTable(game,q_table)
-    #plot_RList(r_list)
-
-    sess, qnn = train_QNetwork()
+    sess, qnn = train_QNetwork(game, seed)
     test_QNetwork(game, sess, qnn)
