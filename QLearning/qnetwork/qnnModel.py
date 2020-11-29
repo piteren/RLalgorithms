@@ -11,7 +11,6 @@ def qnn_model(
         input_size=         4,
         hidden_layers_size= [12],
         gamma=              0.9,
-        iLR=                0.001,
         seed=               121,
         opt_class=          tf.train.GradientDescentOptimizer,
         **kwargs):
