@@ -1,6 +1,10 @@
+GPUtil
+gym
+matplotlib
+nltk
 numpy
 pandas
-matplotlib
-tensorflow-gpu==1.15.4
-gym
+rouge
 sklearn
+spacy
+tensorflow-gpu==1.15.4
