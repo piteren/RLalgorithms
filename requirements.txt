@@ -1,8 +1,6 @@
 GPUtil
 gym
 matplotlib
-nltk
-numpy
 pandas
 rouge
 sklearn
