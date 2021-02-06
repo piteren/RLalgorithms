@@ -19,9 +19,9 @@ class Game:
         self.board = np.zeros(self.bs)
 
     # returns reward
-    def play(self, cell):
-        if self.board[cell] == 0:
-            self.board[cell] = 1
+    def play(self, c_IX: int):
+        if self.board[c_IX] == 0:
+            self.board[c_IX] = 1
             return 1
         return -1
 

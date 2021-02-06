@@ -17,7 +17,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from ptools.neuralmess.nemodel import NEModel
 
-from PolicyGradients.policyModel import policy_model
+from PolicyGradients.policy_model import policy_model
 
 
 class PolicyNN:
@@ -30,6 +30,7 @@ class PolicyNN:
         self.nn = NEModel(
             fwd_func=   policy_model,
             mdict=      mdict,
+            save_TFD=   '_models',
             verb=       1)
 
     @staticmethod

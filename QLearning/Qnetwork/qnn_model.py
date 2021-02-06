@@ -9,7 +9,7 @@ import tensorflow as tf
 def qnn_model(
         name=               'qnn',
         input_size=         4,
-        hidden_layers_size= [12],
+        hidden_layers_size= (12,),
         gamma=              0.9,
         seed=               121,
         opt_class=          tf.train.GradientDescentOptimizer,

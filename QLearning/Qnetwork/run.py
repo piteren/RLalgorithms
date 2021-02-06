@@ -15,7 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from ptools.neuralmess.nemodel import NEModel
 
-from QLearning.qnetwork.qnnModel import qnn_model
+from QLearning.Qnetwork.qnn_model import qnn_model
 from QLearning.game_envy import Game
 
 
@@ -31,6 +31,7 @@ class QNN:
         self.nn = NEModel(
             fwd_func=   qnn_model,
             mdict=      mdict,
+            save_TFD=   '_models',
             verb=       1)
 
         if 'seed' in mdict: seed = mdict['seed']

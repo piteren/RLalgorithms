@@ -10,7 +10,7 @@ def policy_model(
         name=           'policynn',
         state_size=     4,
         num_of_actions= 2,
-        hidden_layers=  [20],
+        hidden_layers=  (20,),
         **kwargs):
 
     with tf.variable_scope(name):
