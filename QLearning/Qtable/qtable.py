@@ -73,7 +73,7 @@ class QTable:
             qv = self.__get_QVs(st)
             action = int(np.argmax(qv))
             pred = str([round(v, 3) for v in qv])
-            print(f'state: {st}  QVs: {pred:30s}  action: {action}  correct?: {self.__game.evaluate(st,action)}')
+            print(f'state: {st}  QVs: {pred:30s}  action: {action}  (eval:{self.__game.evaluate(st,action)})')
 
     def __str__(self):
         s = 'QTable:\n'
