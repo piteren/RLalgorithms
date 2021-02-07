@@ -4,68 +4,92 @@
 
 """
 import numpy as np
-import pandas as pd
 import random
-from matplotlib import pyplot as plt
+from typing import Hashable, List
 
-from QLearning.game_envy import Game
+from ptools.lipytools.plots import two_dim
 
-
-def build_QTable(game):
-
-    num_of_games = 2000
-    epsilon = 0.5
-    gamma = 0.9
-
-    q_table = pd.DataFrame(0, index=np.arange(len(game.board)), columns=[game.state_to_str(s) for s in game.all_states])
-    print(q_table)
-
-    r_list = []  # store the total reward of each game so we can plot it later
-    for g in range(num_of_games):
-        total_reward = 0
-        game.reset()
-        while not game.is_over():
-            state = np.copy(game.board) # save initial state copy
-            if random.random() < epsilon:   action = random.randrange(len(state))
-            else:                           action = q_table[game.state_to_str(state)].idxmax()
-            reward = game.play(action)
-            total_reward += reward
-
-            next_state = game.board.astype(np.int)
-            next_state_max_q_value = q_table[game.state_to_str(next_state)].max()
-            q_table.loc[action, game.state_to_str(state)] = reward + gamma * next_state_max_q_value
-
-        r_list.append(total_reward)
-
-    print(q_table)
-    return q_table, r_list
+from QLearning.game_envy import QGame, SimpleBoardGame
 
 
-def test_QTable(game, q_table):
+class QTable:
 
-    for st in game.all_states:
-        sst = game.state_to_str(st)
-        action = q_table[sst].idxmax()
-        pred = str([round(v,3) for v in q_table[sst].tolist()])
-        print(f'board: {sst}  predicted Q values: {pred:30s}  best action: {action}  correct action? {st[action] == 0}')
+    def __init__(
+            self,
+            game: QGame,
+            seed=   123):
 
+        random.seed(seed)
+        self.__game = game
+        self.__tbl = None
+        self.reset()
 
-def plot_RList(r_list):
-    plt.figure(figsize=(14, 7))
-    plt.plot(range(len(r_list)), r_list)
-    plt.xlabel('Games played')
-    plt.ylabel('Reward')
-    plt.show()
+    def reset(self):
+        self.__tbl = {}  # {state: np.array(QValues)}
+
+    def __init_state(self, state: Hashable):
+        if state not in self.__tbl:
+            #self.__tbl[state] = np.zeros(self.num_actions, dtype=np.float) # init with 0
+            self.__tbl[state] = np.random.random(self.__game.num_actions()) # init with random
+
+    def __upd_QV(self, state: Hashable, action: int, qv):
+        if state not in self.__tbl: self.__init_state(state)
+        self.__tbl[state][action] = qv
+
+    def __get_QVs(self, state: Hashable) -> np.ndarray:
+        if state not in self.__tbl: self.__init_state(state)
+        return self.__tbl[state]
+
+    def get_states(self) -> List[Hashable]:
+        return sorted(list(self.__tbl.keys()))
+
+    def build(
+            self,
+            num_of_games=   2000,
+            epsilon=        0.5,
+            gamma=          0.9):
+
+        r_list = []  # store the total reward of each game so we can plot it later
+        for g in range(num_of_games):
+            total_reward = 0
+            self.__game.reset()
+            while not self.__game.is_over():
+                state = self.__game.get_state() # save initial state copy
+                qv = self.__get_QVs(state)
+                if random.random() < epsilon:   action = random.randrange(self.__game.num_actions())
+                else:                           action = np.argmax(qv)
+                reward = self.__game.play(action)
+                total_reward += reward
+
+                next_state = self.__game.get_state()
+                next_state_max_q_value = max(self.__get_QVs(next_state))
+                new_qv = reward + gamma * next_state_max_q_value
+                self.__upd_QV(state, action, new_qv)
+
+            r_list.append(total_reward)
+
+        return r_list
+
+    def test(self):
+        for st in self.get_states():
+            qv = self.__get_QVs(st)
+            action = int(np.argmax(qv))
+            pred = str([round(v, 3) for v in qv])
+            print(f'state: {st}  QVs: {pred:30s}  action: {action}  correct?: {self.__game.evaluate(st,action)}')
+
+    def __str__(self):
+        s = 'QTable:\n'
+        for st in self.get_states():
+            s += f'{st} : {self.__tbl[st]}\n'
+        return s
 
 
 if __name__ == "__main__":
 
-    seed = 1546847731  # or try a new seed by using: seed = int(time())
-    random.seed(seed)
-    print(f'\nSeed: {seed}')
+    game = SimpleBoardGame(bs=4)
+    qt = QTable(game)
+    r_list = qt.build()
 
-    game = Game(bs=4)
-
-    q_table, r_list = build_QTable(game)
-    test_QTable(game,q_table)
-    plot_RList(r_list)
+    print(qt)
+    qt.test()
+    two_dim(r_list)

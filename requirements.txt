@@ -2,6 +2,7 @@ GPUtil
 gym
 matplotlib
 pandas
+plotly
 rouge
 sklearn
 spacy

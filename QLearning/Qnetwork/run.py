@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from ptools.neuralmess.nemodel import NEModel
 
 from QLearning.Qnetwork.qnn_model import qnn_model
-from QLearning.game_envy import Game
+from QLearning.game_envy import SimpleBoardGame
 
 
 class QNN:
@@ -54,13 +54,13 @@ class QNN:
             total_reward = 0
             while not self.game.is_over():
                 counter += 1
-                state = np.copy(self.game.board)
+                state = np.copy(self.game.__state)
                 if random.random() < epsilon:
                     action = random.randrange(len(state))
                 else:
                     pred = np.squeeze(self.nn.session.run(
                         fetches=    self.nn['output'],
-                        feed_dict=  {self.nn['states_PH']: np.expand_dims(self.game.board, axis=0)}))
+                        feed_dict=  {self.nn['states_PH']: np.expand_dims(self.game.__state, axis=0)}))
                     action = np.argmax(pred)
                 reward = self.game.play(action)
                 total_reward += reward
@@ -69,7 +69,7 @@ class QNN:
                     {'state':       state,
                      'action':      action,
                      'reward':      reward,
-                     'next_state':  np.copy(game.board),
+                     'next_state':  np.copy(game.__state),
                      'game_over':   self.game.is_over()})
 
                 # Network training
@@ -123,7 +123,7 @@ class ReplayMemory:
 
 if __name__ == "__main__":
 
-    game = Game(bs=4)
+    game = SimpleBoardGame(bs=4)
 
     mdict = {
         'input_size':           game.bs,
