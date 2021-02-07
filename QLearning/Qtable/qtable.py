@@ -7,9 +7,7 @@ import numpy as np
 import random
 from typing import Hashable, List
 
-from ptools.lipytools.plots import two_dim
-
-from QLearning.game_envy import QGame, SimpleBoardGame
+from QLearning.game import QGame
 
 
 class QTable:
@@ -82,14 +80,3 @@ class QTable:
         for st in self.get_states():
             s += f'{st} : {self.__tbl[st]}\n'
         return s
-
-
-if __name__ == "__main__":
-
-    game = SimpleBoardGame(bs=4)
-    qt = QTable(game)
-    r_list = qt.build()
-
-    print(qt)
-    qt.test()
-    two_dim(r_list)

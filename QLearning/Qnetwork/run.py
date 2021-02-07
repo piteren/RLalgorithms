@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from ptools.neuralmess.nemodel import NEModel
 
 from QLearning.Qnetwork.qnn_model import qnn_model
-from QLearning.game_envy import SimpleBoardGame
+from QLearning.game import SimpleBoardGame
 
 
 class QNN:
