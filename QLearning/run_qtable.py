@@ -1,12 +1,12 @@
 """
 
- 2020 (c) piteren
+ 2021 (c) piteren
 
 """
 from ptools.lipytools.plots import two_dim
+from ptools.R4C.qtable import QTable
 
 from QLearning.simple_board_game import SimpleBoardGame
-from QLearning.Qtable.qtable import QTable
 
 
 if __name__ == "__main__":
