@@ -11,10 +11,11 @@ from QLearning.simple_board_game import SimpleBoardGame
 
 if __name__ == "__main__":
 
-    game = SimpleBoardGame(bs=4)
+    game = SimpleBoardGame(board_size=6)
     qt = QTable(game)
-    r_list = qt.build()
+    print(qt)
 
+    r_list = qt.train(batch_size=1)
     print(qt)
     qt.test()
     two_dim(r_list)

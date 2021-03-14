@@ -1,6 +1,7 @@
 GPUtil
 gym
 matplotlib
+Levenshtein
 pandas
 plotly
 rouge
