@@ -22,8 +22,8 @@ if __name__ == "__main__":
     qnn = QNN(envy=game, mdict=mdict)
     qnn.test()
 
-    r_list = qnn.train(num_of_games=5000)
+    r_list = qnn.train(num_of_games=10000)
     print(f'Final cost (avg10): {sum(qnn.l_list[-10:]) / 10:.3f}')
-    two_dim(r_list)
-    two_dim(qnn.l_list)
+    two_dim(r_list, name='acc rewards')
+    two_dim(qnn.l_list, name='loss')
     qnn.test()
