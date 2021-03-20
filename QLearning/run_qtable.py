@@ -4,7 +4,7 @@
 
 """
 from ptools.lipytools.plots import two_dim
-from ptools.R4C.qtable import QTable
+from ptools.R4C.qlearning.qtable import QTable
 
 from QLearning.simple_board_game import SimpleBoardGame
 
