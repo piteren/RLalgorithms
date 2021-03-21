@@ -5,6 +5,7 @@
 """
 import gym
 
+from ptools.lipytools.little_methods import stamp
 from ptools.R4C.policy_gradients.pgnn_model import PGNN
 from ptools.R4C.renvy import PolicyGradientsEnvironment
 
@@ -47,6 +48,7 @@ if __name__ == "__main__":
     envy = CartPolePGE()
 
     mdict = {
+        'name':             f'cart_pole_{stamp()}',
         'hidden_layers':    [12],
         'iLR':              0.001,
         'seed':             121}
@@ -55,4 +57,4 @@ if __name__ == "__main__":
         envy=               envy,
         mdict=              mdict)
     pnn.train()
-    pnn.test(exploit=False)
+    pnn.test(exploration=True)
