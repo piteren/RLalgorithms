@@ -14,6 +14,7 @@ class CartPolePGE(PolicyGradientsEnvironment):
     def __init__(self):
         self.__gym_envy = gym.make('CartPole-v1')
         self.__is_over = False
+        self.__gym_envy.reset()
         print(f'\nInitialised gym CartPole-v1 envy')
         print(f' > state width: {self.get_state_width()}')
         print(f' > max steps: {self.__gym_envy._max_episode_steps}')
@@ -38,9 +39,8 @@ class CartPolePGE(PolicyGradientsEnvironment):
     def encode_state(self, state):
         return self.__gym_envy.state
 
-    def get_state_width(self) -> int:
-        return self.__gym_envy.observation_space.shape[0]
-
+    def render(self):
+        self.__gym_envy.render()
 
 if __name__ == "__main__":
 
@@ -55,3 +55,4 @@ if __name__ == "__main__":
         envy=               envy,
         mdict=              mdict)
     pnn.train()
+    pnn.test(exploit=False)
